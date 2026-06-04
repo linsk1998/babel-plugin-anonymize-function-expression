@@ -1,0 +1,29 @@
+const fs = require("fs");
+const assert = require('assert');
+const { transform } = require("@babel/core");
+const plugin = require("../src/index");
+
+function test(title, options) {
+	it(title, function () {
+		const file = 'tests/case/' + title;
+		const fileIn = file + '.js';
+		const fileOut = file + '.out.js';
+		// 使用 Fixture 作为输入
+		const inputCode = fs.readFileSync(fileIn, 'utf8');
+		// 调用插件转换
+		const { code } = transform(inputCode, {
+			filename: fileIn,
+			plugins: [
+				[plugin, options],
+				require('@babel/plugin-transform-jscript')
+			]
+		});
+		// 验证输出
+		assert.strictEqual(code.trim(), fs.readFileSync(fileOut, 'utf8').trim());
+	});
+}
+
+describe('babel-plugin-anonymize-function-expression', function () {
+	test('anonymize', {});
+	test('recursive', {});
+});
